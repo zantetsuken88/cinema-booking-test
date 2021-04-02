@@ -4,11 +4,13 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class RejectedBookingService {
     private static final BookingRequestValidationService bookingRequestValidationService = new BookingRequestValidationService();
     private static final boolean[][] cinema = new boolean[100][50];
+    static int bookings = 0;
 
     public static int[][] parseBookings(String[] booking) {
         // trim off the closing parenthesis so parseInt doesn't fail
@@ -78,6 +80,7 @@ public class RejectedBookingService {
                 boolean isValid = validateBooking(parsed[0], parsed[1]);
                 if (isValid) {
                     createBooking(parsed[0][0], parsed[0][1], parsed[1][1]);
+                    bookings++;
                 } else {
                     rejections++;
                 }
@@ -89,11 +92,22 @@ public class RejectedBookingService {
         return rejections;
     }
 
+    static void printCinema(boolean[][] cinema) {
+        Arrays.stream(cinema)
+                .forEach(row -> {
+                    for (int i = 0; i < 50; i++) {
+                        System.out.print(row[i] ? " O " : " X ");
+                    }
+                    System.out.println(" ");
+                });
+    }
+
     public static void main(String[] args) throws Exception {
         try {
             File bookingFile = getFile("resources/booking_requests");
             int rejections = processFile(bookingFile);
-            System.out.printf("Finished processing bookings. Rejected [%s] bookings!", rejections);
+            printCinema(cinema);
+            System.out.printf("Successfully processed [%s] bookings and rejected [%s] bookings!", bookings, rejections);
         } catch (Exception e) {
             throw new Exception("Oops, something's gone wrong.", e);
         }
